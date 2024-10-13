@@ -1,0 +1,9 @@
+# created by virtualenv automatically
+.idea
+__pycache__
+include
+Lib
+Scripts
+var
+pyvenv.cfg
+sensitive_data.py

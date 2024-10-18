@@ -1,6 +1,7 @@
 import clickhouse_connect
 from sensitive_data import CLICKHOUSE_USER, CLICKHOUSE_PASSWORD, CLICKHOUSE_HOST, CLICKHOUSE_PORT
 import atexit
+import json
 
 # Games Aggregator Database
 
@@ -31,11 +32,13 @@ ALTER TABLE gad.prices DELETE WHERE game_name = %s AND store_name = %s;
 """
 
 GET_DB_QUERY = """
-SELECT * FROM gad.prices WHERE game_name = %s;
+SELECT * FROM gad.prices WHERE game_name = %s
 """
 
 GET_ALIKE_DB_QUERY = """
-SELECT * FROM gad.prices WHERE game_name LIKE %s;
+SELECT * EXCEPT(id)
+FROM gad.prices
+WHERE game_name ILIKE %s
 """
 
 try:
@@ -90,10 +93,11 @@ def update(data):
         print("Error while writing into database:", str(e))
         return False
 
-def get(query):
+def get_alike_by_name(query):
     try:
         print('Database get')
-        return client.execute(GET_ALIKE_DB_QUERY, (query['name']))
+        raw_result = client.query(GET_ALIKE_DB_QUERY, (f'%{query}%',))
+        return raw_result.result_rows
     except Exception as e:
         print("Error while reading from database:", str(e))
         return None

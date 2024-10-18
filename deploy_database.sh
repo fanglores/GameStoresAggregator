@@ -4,7 +4,7 @@
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv E0C56BD4
 
 # Add ClickHouse repository
-echo "deb http://repo.yandex.ru/clickhouse/deb/stable/ main/" | sudo tee /etc/apt/sources.list.d/clickhouse.list
+echo "deb http://repo.yandex.ru/clickhouse/deb/stable/main/" | sudo tee /etc/apt/sources.list.d/clickhouse.list
 
 # Update packages list
 sudo apt update -y

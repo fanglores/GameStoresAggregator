@@ -22,10 +22,15 @@ def get_popular_games(limit=100):
         response = requests.get(url)
         if response.status_code == 200:
             app_list = response.json().get('applist', {}).get('apps', [])
-            return app_list[:limit]
+            filtered_app_list = [
+                {'name': app['name'], 'appid': app['appid']}
+                for app in app_list
+                if app.get('name')
+            ]
+            return filtered_app_list
         return []
-    except:
-        print('ERROR')
+    except Exception as e:
+        print(f'Error: {e}')
 
 def get_app_details(app_id, country='RU'):
     url = "https://store.steampowered.com/api/appdetails"
@@ -39,19 +44,23 @@ def get_app_details(app_id, country='RU'):
         response = requests.get(url, params=params)
         if response.status_code == 200:
             data = response.json()
-            if str(app_id) in data and data[str(app_id)]['success']:
-                details = data[str(app_id)]['data']
+
+            if data.get(str(app_id)).get('success'):
+                details = data.get(str(app_id)).get('data')
                 price_overview = details.get('price_overview')
                 price = price_overview.get('final') / 100 if price_overview else None
                 return {
                     'name': details.get('name'),
+                    'brief_description': details.get('short_description'),
+                    'description': details.get('detailed_description'),
+                    'image_url': details.get('header_image'),
+                    'type': details.get('type'),
                     'price': price,
                     'source': 'steam',
                     'datetime': datetime.now()
                 }
-        else:
-            print(f"Не удалось получить детали для app_id {app_id}")
     except Exception as e:
-        print(f"Ошибка при получении цены для app_id {app_id}: {e}")
-    finally:
-        return None, None
+        print(f"Error: {e}")
+
+    print(f"Couldn`t retrieve game details by apppid: '{app_id}'")
+    return None

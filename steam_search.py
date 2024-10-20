@@ -2,7 +2,7 @@ import requests
 import json
 from datetime import datetime
 
-def get_popular_games(limit=100):
+def get_games():
     url = "https://api.steampowered.com/ISteamApps/GetAppList/v2/"
     '''
     GetAppList

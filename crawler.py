@@ -13,7 +13,7 @@ def __crawler_job():
         print('Database available, proceed with crawling')
 
         print('Trying to get games list from Steam')
-        steam_games_list = steam_search.get_popular_games(10)
+        steam_games_list = steam_search.get_games()
 
         print(f'Trying to parse received games. List size: {len(steam_games_list)}')
         for steam_game in steam_games_list:
@@ -21,7 +21,9 @@ def __crawler_job():
                 game_name, game_appid = steam_game['name'], steam_game['appid']
 
                 print(f"Trying to parse game '{game_name}', appid '{game_appid}'")
-                steam_game_info = steam_search.get_app_details(game_appid)  #TODO: use unified class with all fields, that will be passed across all the functions, which will partially fill its fields?
+                # TODO: use unified class with all fields, that will be passed across all the functions, which will partially fill its fields?
+                # TODO: apply batching for optimal API usage
+                steam_game_info = steam_search.get_app_details(game_appid)
                 if steam_game_info is not None:
                     print(f"Trying to write game with appid '{game_appid}' into a base")
                     database.update(steam_game_info)
@@ -41,7 +43,7 @@ def __shutdown_scheduler():
 
 
 scheduler = BlockingScheduler()
-scheduler.add_job(func=__crawler_job, trigger="interval", hours=1, id='CRAWLER', replace_existing=True, max_instances=1)
+scheduler.add_job(func=__crawler_job, trigger="interval", hours=6, id='CRAWLER', replace_existing=True, max_instances=1)
 
 # Guarantees that scheduler will be stopped on exit
 atexit.register(__shutdown_scheduler)

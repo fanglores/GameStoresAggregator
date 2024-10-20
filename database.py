@@ -31,7 +31,7 @@ REMOVE_DB_QUERY = """
 ALTER TABLE gad.prices DELETE WHERE game_name = %s AND store_name = %s;
 """
 
-GET_DB_QUERY = """
+GET_BY_ID_DB_QUERY = """
 SELECT * FROM gad.prices WHERE game_name = %s
 """
 
@@ -86,17 +86,26 @@ def check_connection(attempts=3, delay=1):
 def update(data):
     try:
         print('Database update')
-        client.command(REMOVE_DB_QUERY, (data['name'], data['source']))
+        client.command(REMOVE_DB_QUERY, (data['name'], data['source'])) # TODO: remove after DB rework to store price history
         client.command(INSERT_DB_QUERY, (data['name'], data['source'], data['price'], data['datetime']))
         return True
     except Exception as e:
         print("Error while writing into database:", str(e))
         return False
 
-def get_alike_by_name(query):
+def get_alike_by_name(game_name):
     try:
-        print('Database get')
-        raw_result = client.query(GET_ALIKE_DB_QUERY, (f'%{query}%',))
+        print('Database get by name alike')
+        raw_result = client.query(GET_ALIKE_DB_QUERY, (f'%{game_name}%',))
+        return raw_result.result_rows
+    except Exception as e:
+        print("Error while reading from database:", str(e))
+        return None
+
+def get_by_name(game_name):
+    try:
+        print('Database get by name')
+        raw_result = client.query(GET_BY_NAME_DB_QUERY, (game_name,))
         return raw_result.result_rows
     except Exception as e:
         print("Error while reading from database:", str(e))
